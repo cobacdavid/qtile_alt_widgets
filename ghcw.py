@@ -4,7 +4,7 @@
 Description: A Github contribution widget for Qtile
 Author: David COBAC
 Date Created: December 6, 2025
-Date Modified: December 7, 2025
+Date Modified: December 10, 2025
 Version: 1.0
 Python Version: 3.13
 Dependencies: aiohttp, libqtile
@@ -48,6 +48,8 @@ class Ghcw(base._Widget):
     def __init__(self, **config):
         base._Widget.__init__(self, length=0, **config)
         self.add_defaults(self.defaults)
+        # en faisant un fill on perd le pixel du stroke
+        self.gap -= 1
         # tâche asynchrone pour récupérer les données en API
         self._tab_donnees = None
         asyncio.create_task(self.async_init())
@@ -99,7 +101,7 @@ class Ghcw(base._Widget):
             self.draw_at_default_position()
             return
 
-        self.dim = (self.bar.height - 8) // 7
+        self.dim = (self.bar.height - 8 * self.gap) // 7
         lgth = self.nweeks * (self.dim + self.gap) + self.gap
 
         self.drawer.clear(self.background or self.bar.background)
