@@ -4,8 +4,8 @@
 Description: A Github contribution widget for Qtile
 Author: David COBAC
 Date Created: December 6, 2025
-Date Modified: December 10, 2025
-Version: 1.0
+Date Modified: December 12, 2025
+Version: 1.1
 Python Version: 3.13
 Dependencies: aiohttp, libqtile
 License: GNU GPL Version 3
@@ -17,6 +17,24 @@ from datetime import datetime, timedelta
 
 import aiohttp
 from libqtile.widget import base
+
+QUERY = """
+query($login: String!, $from: DateTime!, $to: DateTime!) {
+  user(login: $login) {
+    contributionsCollection(from: $from, to: $to) {
+      contributionCalendar {
+        totalContributions
+        weeks {
+          contributionDays {
+            date
+            contributionCount
+          }
+        }
+      }
+    }
+  }
+}
+"""
 
 
 class Contrib_day:
@@ -38,6 +56,7 @@ class Contrib_day:
 class Ghcw(base._Widget):
     defaults = [
         ("idgithub", "cobacdavid", ""),
+        ("token", "Your valid token here", ""),
         ("gap", 1, ""),
         ("nweeks", 52, ""),
         ("colors",
@@ -68,30 +87,35 @@ class Ghcw(base._Widget):
         self.bar.draw()
 
     async def fetch_contribs(self):
-        url = f"https://github-contributions.vercel.app/api/v1/{self.idgithub}"
+        today = datetime.today()
+        past = today - timedelta(days=7 * self.nweeks)
         async with aiohttp.ClientSession() as session:
-            async with session.get(url) as resp:
+            async with session.post("https://api.github.com/graphql",
+                                    json={"query": QUERY,
+                                          "variables":
+                                          {'login': self.idgithub,
+                                           'from': past.isoformat(),
+                                           'to': today.isoformat()}},
+                                    headers={"Authorization":
+                                             f"Bearer {self.token}",
+                                             "Content-Type":
+                                             "application/json"}
+                                    ) as resp:
                 res = await resp.json()
 
-        today = datetime.today()
-
-        i = 0
-        while datetime.fromisoformat(res['contributions'][i]['date']) > today:
-            i += 1
-
         tab_donnees = []
-        for j in range(i, i + 7 * self.nweeks):
-            d = res["contributions"][j]
-            tab_donnees.append((d["date"], d["intensity"]))
-
+        weeks = (res["data"]["user"]["contributionsCollection"]
+                 ["contributionCalendar"]["weeks"])
+        for w in weeks:
+            for day in w["contributionDays"]:
+                tab_donnees.append((day["date"], day["contributionCount"]))
         # prepend empty days to align week
         missing = 6 - today.weekday()
         for k in range(missing):
-            tab_donnees.insert(
-                0,
-                ((today + timedelta(days=k+1)).isoformat()[:10], 0)
-            )
-        return tab_donnees[:7 * self.nweeks]
+            tab_donnees.append(((today + timedelta(days=k+1)).isoformat()[:10],
+                                0)
+                               )
+        return tab_donnees[-7 * self.nweeks:]
 
     def draw(self):
         if self._tab_donnees is None:
@@ -106,8 +130,6 @@ class Ghcw(base._Widget):
 
         self.drawer.clear(self.background or self.bar.background)
         ctx = self.drawer.ctx
-        ctx.scale(-1, -1)
-        ctx.translate(-lgth, -self.bar.height)
 
         for col in range(self.nweeks):
             for lig in range(7):
