@@ -14,8 +14,9 @@ The `Ghcw` widget is in the `ghcw.py` standalone file.
 
 Install it using a `git clone` command or just in copying the file in a `~/.config/qtile/widgets/` directory (and create in it a `__init__.py` empty file).
 
-You will need to  `aiohttp` library : `pip install aiohttp`.
+You will need the  `aiohttp` library : `pip install aiohttp`.
 
+You have to get a **token** from the official github site. It's an easy task (via *settings* and *developer settings* menus), I recommand to create a new token for just that widget purpose. You'll need a classic token and the `read:user` permission.
 
 ### Usage
 For example, in your `config.py` :

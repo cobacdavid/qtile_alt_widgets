@@ -18,6 +18,7 @@ from datetime import datetime, timedelta
 
 import aiohttp
 from libqtile.log_utils import logger
+from libqtile.utils import send_notification
 from libqtile.widget import base
 
 QUERY = """
@@ -105,11 +106,15 @@ class Ghcw(base._Widget):
         # async task to API
         self._tab_donnees = None
         asyncio.create_task(self.async_init())
-        self.add_callbacks({"Button1": self.to_user_webpage})
+        self.add_callbacks({"Button1": self.to_user_webpage,
+                            "Button3": self.send_themes})
 
     def to_user_webpage(self):
         url = f"https://github.com/{self.idgithub}"
         webbrowser.open(url)
+
+    def send_themes(self):
+        send_notification("GHCW", " ".join(THEMES.keys()))
 
     async def async_init(self):
         """Partie asynchrone de l'init."""
