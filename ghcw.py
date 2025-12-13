@@ -54,7 +54,7 @@ class Contrib_day:
         ctx.restore()
 
 
-class Ghcw(base._Widget):
+class Ghcw(base._Widget, base.MarginMixin):
     defaults = [
         ("idgithub", "cobacdavid", ""),
         ("gap", None, ""),
@@ -128,8 +128,9 @@ class Ghcw(base._Widget):
             self.draw_at_default_position()
             return
 
-        # no gap is provided, serach for the "best" gap value
+        # no gap is provided, search for the "best" gap value
         if self.gap is None:
+            # process to improve
             sol = (float('inf'), None)
             for g in range(1, 10):
                 reste = self.bar.height - 8 * g
@@ -145,11 +146,13 @@ class Ghcw(base._Widget):
                            "using 'gap' option.")
 
         self.dim = (self.bar.height - 8 * self.gap) // 7
-        lgth = self.nweeks * (self.dim + self.gap) + self.gap
         step = self.dim + self.gap
+        lgth = self.nweeks*step + self.gap
+        hght = 7*self.dim + 8*self.gap
 
         self.drawer.clear(self.background or self.bar.background)
         ctx = self.drawer.ctx
+        ctx.translate(0, (self.bar.height - hght) / 2)
 
         for col in range(self.nweeks):
             for lig in range(7):
@@ -161,4 +164,3 @@ class Ghcw(base._Widget):
 
         self.length = lgth
         self.draw_at_default_position()
-
