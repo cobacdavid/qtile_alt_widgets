@@ -5,6 +5,7 @@
  - [Github contrib. widget](#github-contribution-widget)
  - [Matrix](#matrix)
  - [Tixy](#tixy)
+ - [Clock alt](#clock-alt)
 
 ## License
 
@@ -107,7 +108,7 @@ No interaction.
 
 The widget offers a tixy experience (https://tixy.land/).
 
-<img src="https://github.com/cobacdavid/my_qtile_widgets/blob/main/tixy.gif?raw=true" width=10% />
+<img src="https://github.com/cobacdavid/my_qtile_widgets/blob/main/tixy.gif?raw=true" width=30% />
 
 
 ### Install
@@ -143,3 +144,48 @@ my_bar_widgets = [
 
 ### Interaction
 No interaction.
+
+## Clock alt
+
+An alternative clock with 4 available layouts. 
+
+<img src="https://github.com/cobacdavid/my_qtile_widgets/blob/main/clock_alt0.png?raw=true" width=10% />
+<img src="https://github.com/cobacdavid/my_qtile_widgets/blob/main/clock_alt1.png?raw=true" width=10% />
+<img src="https://github.com/cobacdavid/my_qtile_widgets/blob/main/clock_alt2.png?raw=true" width=10% />
+<img src="https://github.com/cobacdavid/my_qtile_widgets/blob/main/clock_alt3.png?raw=true" width=10% />
+
+
+### Install
+
+The `Clock alt` widget is in the `clock_alt.py` standalone file.
+
+Install it using a `git clone` command or just in copying the file in a `~/.config/qtile/widgets/` directory (and create in it a `__init__.py` empty file).
+
+
+### Usage
+For example, in your `config.py` :
+
+```python
+frow widgets import clock_alt  # if you put clock_alt.py in a `widgets` dir.
+...
+my_bar_widgets = [
+    ...
+    clock_alt.Clock_alt(),
+    ...
+]
+...
+```
+
+### Options
+
+ - `fmts` (list[str, str]): two usual time string formats. Default is `["%d/%m", "%H:%M"]`.
+ - `gapy` (int): vertical space between the two displays in pixels, uisng state 0 or 1. Default is `2` pixels.
+ - `state` (int): 0, 1, 2 or 3. Default is `0`.
+    - `0`: 1st format above 2nd
+    - `1`: 2nd format above 1st
+    - `2`: 1st format only
+    - `3`: 2nd format only
+
+### Interaction
+
+Left and right click change `state`.

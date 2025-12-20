@@ -1,15 +1,18 @@
 # clock_alt.py
 
 """
-Description: yet another clock
+Description: alternative clock
 Author: David COBAC
 Date Created: December 16, 2025
-Date Modified: December 17, 2025
-Version: 1.0
+Date Modified: December 20, 2025
+Version: 1.1
 Python Version: 3.13
 Dependencies: 
 License: GNU GPL Version 3
 Repo: https://github.com/cobacdavid/my_qtile_widgets
+
+TODO:
+- suppress rev and hide_bot attributes (for I now use state)
 """
 from datetime import datetime
 
@@ -20,33 +23,45 @@ from libqtile.widget import base
 
 class Clock_alt(base._Widget):
     defaults = [
-        ("top_fmt", "%d/%m", ""),
-        ("bot_fmt", "%H:%M", ""),
-        ("gapy", 2, ""),
-        ("rev", False, ""),
-        ("hide_bot", False, ""),
+        ("fmts", ["%d/%m", "%H:%M"], "display formats"),
+        ("gapy", 2, "vertical space (in pixels) between displays"),
+        ("state", 0, "display state: 0, 1, 2 or 3"),
     ]
-    
+
     def __init__(self, **config):
         base._Widget.__init__(self, length=0, **config)
         self.add_defaults(self.defaults)
+        self.fmt1, self.fmt2 = self.fmts
+        self.add_callbacks({"Button1": self.inc_state,
+                            "Button3": self.dec_state})
 
     def _configure(self, qtile, bar):
         base._Widget._configure(self, qtile, bar)
         self._update()
         self.timeout_add(1, self._tick)
 
+    def inc_state(self):
+        self.state = (self.state + 1) % 4
+        self._update()
+
+    def dec_state(self):
+        self.state = (self.state - 1) % 4
+        self._update()
+
     def _tick(self):
         self._update()
         self.timeout_add(1, self._tick)
 
     def _update(self):
+        self.rev = self.state & 1
+        self.hide_bot = self.state >> 1
+
         if not self.rev:
-            self.txt_ht = datetime.now().strftime(self.top_fmt)
-            self.txt_bs = datetime.now().strftime(self.bot_fmt)
+            self.txt_ht = datetime.now().strftime(self.fmt1)
+            self.txt_bs = datetime.now().strftime(self.fmt2)
         else:
-            self.txt_ht = datetime.now().strftime(self.bot_fmt)
-            self.txt_bs = datetime.now().strftime(self.top_fmt)
+            self.txt_ht = datetime.now().strftime(self.fmt2)
+            self.txt_bs = datetime.now().strftime(self.fmt1)
         self.bar.draw()
 
     def draw(self):
