@@ -4,7 +4,7 @@
 Description: tixy
 Author: David COBAC
 Date Created: December 19, 2025
-Date Modified: December 19, 2025
+Date Modified: December 21, 2025
 Version: 1.0
 Python Version: 3.13
 Dependencies: 
@@ -13,6 +13,7 @@ Repo: https://github.com/cobacdavid/my_qtile_widgets
 """
 
 import math as _math
+import socket as _socket
 
 from libqtile.log_utils import logger
 from libqtile.utils import send_notification
@@ -55,8 +56,10 @@ class Carre:
         ctx.restore()
 
 
-class Tixy(base._Widget):
+class Tixynet(base._Widget):
     defaults = [
+        ("iface", "eth0", ""),
+        ("iface_interval", 5, ""),
         ("inmargin", 2, ""),
         ("force_step", None, ""),
         ("pyfunc", lambda t, i, x, y: _math.sin(y/8+t), ""),
@@ -70,6 +73,7 @@ class Tixy(base._Widget):
         base._Widget.__init__(self, length=0, **config)
         self.add_defaults(self.defaults)
         self.frame = 0
+        self.etat = None
 
     def _configure(self, qtile, bar):
         base._Widget._configure(self, qtile, bar)
@@ -79,6 +83,7 @@ class Tixy(base._Widget):
                                lig*self.dimax + self.dimax/2)
                          for col in range(self.w)]
                         for lig in range(self.h)]
+        self.update_status()
         self._update()
         self.timeout_add(self.update_interval, self._tick)
 
@@ -87,10 +92,13 @@ class Tixy(base._Widget):
         self.timeout_add(self.update_interval, self._tick)
 
     def _update(self):
-        if not self.force_step:
-            self.frame += self.update_interval
+        if self.etat:
+            if not self.force_step:
+                self.frame += self.update_interval
+            else:
+                self.frame += self.force_step
         else:
-            self.frame += self.force_step
+            self.frame += 0
         self.bar.draw()
 
     def draw(self):
@@ -105,3 +113,18 @@ class Tixy(base._Widget):
             self.myarray[y][x].dim = min(1, abs(im)) * self.dimax
             self.myarray[y][x].draw(ctx)
         self.draw_at_default_position()
+
+    def update_status(self):
+        s = _socket.socket(_socket.AF_INET, _socket.SOCK_STREAM)
+        s.settimeout(1)
+
+        try:
+            s.setsockopt(_socket.SOL_SOCKET, 25, self.iface.encode())
+            s.connect(("1.1.1.1", 443))
+            self.etat = True
+        except Exception:
+            self.etat = False
+        finally:
+            s.close()
+
+        self.timeout_add(self.iface_interval, self.update_status)

@@ -4,7 +4,7 @@
 
  - [Github contrib. widget](#github-contribution-widget)
  - [Matrix](#matrix)
- - [Tixy](#tixy)
+ - [Tixynet](#tixynet)
  - [Clock alt](#clock-alt)
 
 ## License
@@ -104,16 +104,16 @@ If `pyfunc` is not `None`, the shell command will be ignored.
 ### Interaction
 No interaction.
 
-## Tixy
+## Tixynet
 
-The widget offers a tixy experience (https://tixy.land/).
+The widget offers a tixy experience (https://tixy.land/) associated with net UP or DOWN. Animation continues if UP else animation stops.
 
 <img src="https://github.com/cobacdavid/my_qtile_widgets/blob/main/tixy.gif?raw=true" width=30% />
 
 
 ### Install
 
-The `Tixy` widget is in the `tixy.py` standalone file.
+The `Tixynet` widget is in the `tixynet.py` standalone file.
 
 Install it using a `git clone` command or just in copying the file in a `~/.config/qtile/widgets/` directory (and create in it a `__init__.py` empty file).
 
@@ -122,11 +122,11 @@ Install it using a `git clone` command or just in copying the file in a `~/.conf
 For example, in your `config.py` :
 
 ```python
-frow widgets import tixy  # if you put tixy.py in a `widgets` dir.
+frow widgets import tixynet  # if you put tixynet.py in a `widgets` dir.
 ...
 my_bar_widgets = [
     ...
-    tixy.Tixy(),
+    tixynet.Tixynet(iface="en3sp0"),
     ...
 ]
 ...
@@ -134,6 +134,8 @@ my_bar_widgets = [
 
 ### Options
 
+ - `iface` (str): network interface. Default is `"eth0"`.
+ - `iface_interval` (int): delay in seconds between two net UP check. Default is `5`.
  - `colors` (list[str, str]): colors array, first element for positive color, second  d for negative. Default is `["ffffff", "ff0000"]`.
  - `force_step` (float): Forces fake time `t` step. Can be useful using great `update_interval` to get a slow animation. Default is `None`.
  - `ìnmargin` (int): margin all around the widget. Default is `2` (pixels) ;
@@ -149,10 +151,7 @@ No interaction.
 
 An alternative clock with 4 available layouts. 
 
-<img src="https://github.com/cobacdavid/my_qtile_widgets/blob/main/clock_alt0.png?raw=true" width=10% />
-<img src="https://github.com/cobacdavid/my_qtile_widgets/blob/main/clock_alt1.png?raw=true" width=10% />
-<img src="https://github.com/cobacdavid/my_qtile_widgets/blob/main/clock_alt2.png?raw=true" width=10% />
-<img src="https://github.com/cobacdavid/my_qtile_widgets/blob/main/clock_alt3.png?raw=true" width=10% />
+<img src="https://github.com/cobacdavid/my_qtile_widgets/blob/main/clock_alt0.png?raw=true" width=10% /> <img src="https://github.com/cobacdavid/my_qtile_widgets/blob/main/clock_alt1.png?raw=true" width=10% /> <img src="https://github.com/cobacdavid/my_qtile_widgets/blob/main/clock_alt2.png?raw=true" width=10% /> <img src="https://github.com/cobacdavid/my_qtile_widgets/blob/main/clock_alt3.png?raw=true" width=10% />
 
 
 ### Install
