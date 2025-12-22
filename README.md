@@ -13,7 +13,12 @@
 
 ## Github Contribution Widget
 
+Example image with a full year:
 <img src="https://github.com/cobacdavid/my_qtile_widgets/blob/main/ghcw.png?raw=true" width=50% />
+
+Example image with 3 years (and a smaller `bar`):
+<img src="https://github.com/cobacdavid/my_qtile_widgets/blob/main/ghcw2.png?raw=true" width=50% />
+
 
 ### Install
 

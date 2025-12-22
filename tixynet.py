@@ -1,10 +1,10 @@
-# tixy.py
+# tixynet.py
 
 """
-Description: tixy
+Description: tixynet
 Author: David COBAC
 Date Created: December 19, 2025
-Date Modified: December 21, 2025
+Date Modified: December 22, 2025
 Version: 1.0
 Python Version: 3.13
 Dependencies: 
@@ -78,7 +78,8 @@ class Tixynet(base._Widget):
     def _configure(self, qtile, bar):
         base._Widget._configure(self, qtile, bar)
         self.dimax = (self.bar.height - 2*self.inmargin) / self.h
-        self.length = round(self.w * self.dimax + 2*self.inmargin)
+        self.length = round(self.w * self.dimax
+                            + 2*(self.inmargin + self.padding))
         self.myarray = [[Carre(col*self.dimax + self.dimax/2,
                                lig*self.dimax + self.dimax/2)
                          for col in range(self.w)]
@@ -104,7 +105,7 @@ class Tixynet(base._Widget):
     def draw(self):
         self.drawer.clear(self.background or self.bar.background)
         ctx = self.drawer.ctx
-        ctx.translate(self.inmargin, self.inmargin)
+        ctx.translate(self.inmargin + self.padding, self.inmargin)
         n = self.w * self.h
         for i in range(n):
             x, y = i % self.w, i // self.w

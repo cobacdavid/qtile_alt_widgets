@@ -25,7 +25,7 @@ class Clock_alt(base._Widget):
     defaults = [
         ("fmts", ["%d/%m", "%H:%M"], "display formats"),
         ("gapy", 2, "vertical space (in pixels) between displays"),
-        ("state", 0, "display state: 0, 1, 2 or 3"),
+        ("state", 0, "display state: 0, 1, 2 or 3")
     ]
 
     def __init__(self, **config):

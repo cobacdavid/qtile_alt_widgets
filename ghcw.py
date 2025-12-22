@@ -4,8 +4,8 @@
 Description: A Github contribution widget for Qtile
 Author: David COBAC
 Date Created: December 6, 2025
-Date Modified: December 17, 2025
-Version: 1.1
+Date Modified: December 22, 2025
+Version: 1.2
 Python Version: 3.13
 Dependencies: aiohttp, libqtile
 License: GNU GPL Version 3
@@ -108,7 +108,7 @@ class Ghcw(base._Widget):
 
     def _configure(self, qtile, bar):
         base._Widget._configure(self, qtile, bar)
-                # async task to API
+        # async task to API
         self._tab_donnees = None
         asyncio.create_task(self.async_init())
 
@@ -129,23 +129,31 @@ class Ghcw(base._Widget):
     async def fetch_contribs(self):
         today = datetime.today()
         past = today - timedelta(days=7 * self.nweeks)
-        async with aiohttp.ClientSession() as session:
-            async with session.post("https://api.github.com/graphql",
-                                    json={"query": QUERY,
-                                          "variables":
-                                          {'login': self.idgithub,
-                                           'from': past.isoformat(),
-                                           'to': today.isoformat()}},
-                                    headers={"Authorization":
-                                             f"Bearer {self.token}",
-                                             "Content-Type":
-                                             "application/json"}
-                                    ) as resp:
-                res = await resp.json()
-
+        # begin from past
+        n_req = self.nweeks // 52 + (0 if self.nweeks % 52 == 0 else 1)
+        from_date = past
+        to_date = from_date + timedelta(days=7 * ((self.nweeks % 52) or 52))
+        weeks = list()
+        for n in range(n_req):
+            async with aiohttp.ClientSession() as session:
+                async with session.post("https://api.github.com/graphql",
+                                        json={"query": QUERY,
+                                              "variables":
+                                              {'login': self.idgithub,
+                                               'from': from_date.isoformat(),
+                                               'to': to_date.isoformat()}},
+                                        headers={"Authorization":
+                                                 f"Bearer {self.token}",
+                                                 "Content-Type":
+                                                 "application/json"}
+                                        ) as resp:
+                    res = await resp.json()
+                    weeks.extend(res["data"]["user"]["contributionsCollection"]
+                                 ["contributionCalendar"]["weeks"])
+            from_date = to_date + timedelta(days=1)
+            to_date = from_date + timedelta(days=7*52 - 1)
+        #
         tab_donnees = []
-        weeks = (res["data"]["user"]["contributionsCollection"]
-                 ["contributionCalendar"]["weeks"])
         for w in weeks:
             for day in w["contributionDays"]:
                 tab_donnees.append((day["date"], day["contributionCount"]))
@@ -189,7 +197,7 @@ class Ghcw(base._Widget):
 
         self.drawer.clear(self.background or self.bar.background)
         ctx = self.drawer.ctx
-        ctx.translate(0, (self.bar.height - hght) / 2)
+        ctx.translate(self.padding, (self.bar.height - hght) / 2)
 
         if not self.colors:
             self.colors = THEMES[self.theme]
@@ -204,5 +212,5 @@ class Ghcw(base._Widget):
                             self.gap + lig*step,
                             self.dim, couleur).draw(ctx)
 
-        self.length = lgth
+        self.length = lgth + 2*self.padding
         self.draw_at_default_position()

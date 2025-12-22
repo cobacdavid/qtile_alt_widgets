@@ -4,7 +4,7 @@
 Description: A generic widget to display numbers [0-100]
 Author: David COBAC
 Date Created: December 17, 2025
-Date Modified: December 17, 2025
+Date Modified: December 22, 2025
 Version: 1.0
 Python Version: 3.13
 Dependencies: libqtile
@@ -62,7 +62,7 @@ class Matrix(base._Widget):
 
     def _configure(self, qtile, bar):
         base._Widget._configure(self, qtile, bar)
-        self.length = self.bar.height
+        self.length = self.bar.height + 2*self.padding
         self.dim = (self.bar.height - 2*self.inmargin) / 10
         self.value = None
         self.sqarray = [[Carre(col*self.dim, lig*self.dim, self.dim-1)
@@ -86,14 +86,13 @@ class Matrix(base._Widget):
             self.value = res.stdout.strip()
         else:
             self.value = self.pyfunc()
-        # logger.warning(self.value)
         self.bar.draw()
 
     def draw(self):
         self.drawer.clear(self.background or self.bar.background)
         if self.value is not None:
             ctx = self.drawer.ctx
-            ctx.translate(self.inmargin, self.inmargin)
+            ctx.translate(self.inmargin + self.padding, self.inmargin)
             for i in range(int(self.value)):
                 self.flatsqarray[i].couleur = str2cairorgb(self.color)
                 self.flatsqarray[i].draw(ctx)
