@@ -5,9 +5,9 @@ Description: A Github contribution widget for Qtile
 Author: David COBAC
 Date Created: December 6, 2025
 Date Modified: December 22, 2025
-Version: 1.2
+Version: 1.3
 Python Version: 3.13
-Dependencies: aiohttp
+Dependencies: aiohttp, colormaps
 License: GNU GPL Version 3
 Repo: https://github.com/cobacdavid/qtile_alt_widgets
 """
@@ -17,56 +17,10 @@ import webbrowser
 from datetime import datetime, timedelta
 
 import aiohttp
+import colormaps as cmaps
 from libqtile.log_utils import logger
 from libqtile.utils import send_notification
 from libqtile.widget import base
-
-QUERY = """
-query($login: String!, $from: DateTime!, $to: DateTime!) {
-  user(login: $login) {
-    contributionsCollection(from: $from, to: $to) {
-      contributionCalendar {
-        totalContributions
-        weeks {
-          contributionDays {
-            date
-            contributionCount
-          }
-        }
-      }
-    }
-  }
-}
-"""
-
-THEMES = {'light': [[1 - (.25*i)**.5]*3 for i in range(5)],
-          'dark': [[(.25*i)**.5]*3 for i in range(5)],
-          'gh': [(.9, .9, .9),
-                 (.77, .89, .55),
-                 (.48, .79, .44),
-                 (.14, .60, .23),
-                 (.1, .38, .15)],
-          'ghd': [(.09, .11, .13),
-                  (0, .22, .13),
-                  (0, .37, .18),
-                  (.06, .60, .24),
-                  (.15, .84, .27)],
-          'xmas1': [(.97, .91, .88),
-                    (.58, .48, .44),
-                    (.43, .20, .11),
-                    (.20, .21, .18),
-                    (.13, .03, .04)],
-          'xmas2': [(.95, .82, .68),
-                    (.93, .62, .53),
-                    (.94, .23, .24),
-                    (.63, .05, .09),
-                    (.21, .02, .03)],
-          'xmas3': [(.85, .90, .95),
-                    (.16, .42, .63),
-                    (.67, .78, .66),
-                    (.48, .61, .39),
-                    (.33, .37, .25)],
-          }
 
 
 class Contrib_day:
@@ -86,25 +40,80 @@ class Contrib_day:
 
 
 class Ghcw(base._Widget):
+    QUERY = """
+query($login: String!, $from: DateTime!, $to: DateTime!) {
+  user(login: $login) {
+    contributionsCollection(from: $from, to: $to) {
+      contributionCalendar {
+        totalContributions
+        weeks {
+          contributionDays {
+            date
+            contributionCount
+          }
+        }
+      }
+    }
+  }
+}
+"""
+
+    THEMES = {'ghcw_lgt': [[1 - (.25*i)**.5]*3 for i in range(5)],
+              'ghcw_drk': [[(.25*i)**.5]*3 for i in range(5)],
+              'ghcw_gho': [(.9, .9, .9),
+                           (.77, .89, .55),
+                           (.48, .79, .44),
+                           (.14, .60, .23),
+                           (.1, .38, .15)],
+              'ghcw_ghd': [(.09, .11, .13),
+                           (0, .22, .13),
+                           (0, .37, .18),
+                           (.06, .60, .24),
+                           (.15, .84, .27)],
+              'ghcw_bdx': [(.97, .91, .88),
+                           (.58, .48, .44),
+                           (.43, .20, .11),
+                           (.20, .21, .18),
+                           (.13, .03, .04)],
+              'ghcw_red': [(.95, .82, .68),
+                           (.93, .62, .53),
+                           (.94, .23, .24),
+                           (.63, .05, .09),
+                           (.21, .02, .03)],
+              'ghcw_blu': [(.85, .90, .95),
+                           (.16, .42, .63),
+                           (.67, .78, .66),
+                           (.48, .61, .39),
+                           (.33, .37, .25)],
+              }
+
     defaults = [
         ("colors", None, ""),
         ("empty_cell_color", None, ""),
         ("gap", None, ""),
         ("idgithub", "cobacdavid", ""),
+        ("revcolors", False, ""),
         ("nweeks", 52, ""),
-        ("theme", "gh", "")
+        ("theme", "ghcw_gho", "")
     ]
+
+    @staticmethod
+    def cmp2theme(cmap_name):
+        col = getattr(cmaps, cmap_name).discrete(5)
+        return [tuple(map(float, col(i)))[:-1] for i in range(5)]
 
     def __init__(self, token, **config):
         base._Widget.__init__(self, length=0, **config)
         self.add_defaults(self.defaults)
         self.token = token
+        self.ghcw_themes = list(self.THEMES.keys())
+        self.ghcw_themes_i = 0
         #
         if not self.token:
             logger.warning("You must provide a valid Github Token.")
             exit
         self.add_callbacks({"Button1": self.to_user_webpage,
-                            "Button3": self.send_themes})
+                            "Button3": self.switch_theme})
 
     def _configure(self, qtile, bar):
         base._Widget._configure(self, qtile, bar)
@@ -116,8 +125,10 @@ class Ghcw(base._Widget):
         url = f"https://github.com/{self.idgithub}"
         webbrowser.open(url)
 
-    def send_themes(self):
-        send_notification("GHCW", " ".join(THEMES.keys()))
+    def switch_theme(self):
+        self.theme = self.ghcw_themes[self.ghcw_themes_i]
+        self.ghcw_themes_i = (self.ghcw_themes_i + 1) % len(self.ghcw_themes)
+        self.draw()
 
     async def async_init(self):
         """Partie asynchrone de l'init."""
@@ -137,7 +148,7 @@ class Ghcw(base._Widget):
         for n in range(n_req):
             async with aiohttp.ClientSession() as session:
                 async with session.post("https://api.github.com/graphql",
-                                        json={"query": QUERY,
+                                        json={"query": self.QUERY,
                                               "variables":
                                               {'login': self.idgithub,
                                                'from': from_date.isoformat(),
@@ -200,14 +211,27 @@ class Ghcw(base._Widget):
         ctx.translate(self.padding, (self.bar.height - hght) / 2)
 
         if not self.colors:
-            self.colors = THEMES[self.theme]
+            if self.theme in self.THEMES:
+                colors = self.THEMES[self.theme]
+            else:
+                try:
+                    colors = self.cmp2theme(self.theme)
+                except:
+                    logger.warning(f"Error with {self.theme} theme, "
+                                   "switch to default theme")
+                    colors = self.THEMES[Ghcw.defaults[6][1]]
+
+        if self.revcolors:
+            colors = colors[::-1]
+
         if self.empty_cell_color:
-            self.colors[0] = self.empty_cell_color
+            colors[0] = self.empty_cell_color
 
         for col in range(self.nweeks):
             for lig in range(7):
                 intensity = self._tab_donnees[col * 7 + lig][1]
-                couleur = self.colors[min(4, int(intensity))]
+                icolor = min(4, int(intensity))
+                couleur = colors[icolor]
                 Contrib_day(col*step,
                             self.gap + lig*step,
                             self.dim, couleur).draw(ctx)

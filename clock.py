@@ -4,8 +4,8 @@
 Description: alternative clock
 Author: David COBAC
 Date Created: December 16, 2025
-Date Modified: December 20, 2025
-Version: 1.1
+Date Modified: December 23, 2025
+Version: 1.2
 Python Version: 3.13
 Dependencies:
 License: GNU GPL Version 3
@@ -21,11 +21,16 @@ from libqtile.utils import send_notification
 from libqtile.widget import base
 
 
+def str2cairorgb(s):
+    return tuple(int(s[2*i:2*i+2], 16) / 255 for i in range(3))
+
+
 class Clock(base._Widget):
     defaults = [
         ("fmts", ["%d/%m", "%H:%M"], "display formats"),
         ("gapy", 2, "vertical space (in pixels) between displays"),
-        ("state", 0, "display state: 0, 1, 2 or 3")
+        ("state", 0, "display state: 0, 1, 2 or 3"),
+        ("text_colors", ["000000", "000000"], "")
     ]
 
     def __init__(self, **config):
@@ -79,7 +84,7 @@ class Clock(base._Widget):
         else:
             xb_bs = yb_bs = w_bs = h_bs = xa_bs = ya_bs = 0
         #
-        ctx.set_source_rgb(0, 0, 0)
+        ctx.set_source_rgb(*str2cairorgb(self.text_colors[0]))
         occup_x = max(w_ht, w_bs) + 2*self.padding
         occup_y = h_ht + self.gapy + h_bs
         xd, yd = (occup_x - w_ht) / 2, (self.bar.height - occup_y) / 2 + h_ht
@@ -89,6 +94,7 @@ class Clock(base._Widget):
         ctx.show_text(self.txt_ht)
         ctx.move_to(xt, yt)
         if not self.hide_bot:
+            ctx.set_source_rgb(*str2cairorgb(self.text_colors[1]))
             ctx.set_font_size(self.fontsize - 10)
             ctx.show_text(self.txt_bs)
         #
