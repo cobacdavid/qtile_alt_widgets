@@ -6,6 +6,7 @@
  - [Matrix](#matrix)
  - [Tixynet](#tixynet)
  - [Clock alt](#clock-alt)
+ - [Volume](#volume)
 
 ## License
 
@@ -193,3 +194,47 @@ my_bar_widgets = [
 ### Interaction
 
 Left and right click change `state`.
+
+## Volume
+
+An alternative volume with 2 available layouts. 
+
+<img src="https://github.com/cobacdavid/my_qtile_widgets/blob/main/volume1.png?raw=true" width=10% /> <img src="https://github.com/cobacdavid/my_qtile_widgets/blob/main/volume2.png?raw=true" width=10% /> <img src="https://github.com/cobacdavid/my_qtile_widgets/blob/main/volume3.png?raw=true" width=10% /> <img src="https://github.com/cobacdavid/my_qtile_widgets/blob/main/volume4.png?raw=true" width=10% />
+
+
+### Install
+
+The `Volume` widget is in the `volume.py` standalone file.
+
+Install it using a `git clone` command or just in copying the file in a `~/.config/qtile/widgets/` directory (and create in it a `__init__.py` empty file).
+
+
+### Usage
+For example, in your `config.py` :
+
+```python
+frow widgets import volume  # if you put volume.py in a `widgets` dir.
+...
+my_bar_widgets = [
+    ...
+    volume.Volume(),
+    ...
+]
+...
+```
+
+### Options
+
+ - `bar_bg` (str): color of bar background. Default is `"cccccc"`.
+ - `bar_length` (int): for `"h"` orientation only. Widget length. Default is `40` pixels.
+ - `bar_width` (int): bar thickness. Default is `10`.
+ - `cellgap` (int|float): space between two cells. Default is `1`. Ignored no `ncells` option.
+ - `execshell` (str): shell to use to execute `amixer` commands. Default is `"/usr/bin/bash"`.
+ - `ncells` (int): number of cells to draw. Default is `None`. If not `None`, the volume bar is drawn using cells.
+ - `orient` (str): `"h"` or `"v"` for horizontal or vertical mode. Default is `v`.
+ - `step` (int): when increasing or decreasing volume with `amixer`, amount of volume measure. Default is `1000`.
+ - `ymargin` (int): y margin in pixels. Default is `2`.
+
+### Interaction
+
+Left click toggle mute mode, volume bar is no more filled but outlined. Using wheel increases or decreases volume.
