@@ -53,8 +53,8 @@ Unlike original Github diagram, **the week begins on Monday**.
 
 Currently 6 options:
 
- - `colors`: a five RGB colors tab using `(0, 0, 0)` for black and `(1, 1, 1)` for white, thus `(.5, .5, .5)` is midgrey. Default is `None` as default config uses a `theme` default.
- - `empty_cell_color` : RGB color for 0 contrib. Useful to set according to qtile bar background. Default is `None` as default config uses a `theme` default.
+ - `colors`: a five hex RGB colors string tab using `"000000"` for black and `"ffffff"` for white. Default is `None` as default config uses a `theme` default.
+ - `empty_cell_color` : RGB color string for 0 contrib. Useful to set according to qtile bar background. Default is `None` as default config uses a `theme` default.
  - `gap`: distance in pixel between two squares. Default is `None`, in this case `gap` is calculated. Best visual results with small values as `1`.
  - `idgithub`: the Github username you want to access. Default is `'cobacdavid'`.
  - `nweeks`: number of weeks i.e. columns to display. Default is 52 (a full year).

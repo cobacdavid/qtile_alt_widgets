@@ -102,6 +102,10 @@ query($login: String!, $from: DateTime!, $to: DateTime!) {
         col = getattr(cmaps, cmap_name).discrete(5)
         return [tuple(map(float, col(i)))[:-1] for i in range(5)]
 
+    @staticmethod
+    def str2cairorgb(s):
+        return tuple(int(s[2*i:2*i+2], 16) / 255 for i in range(3))
+
     def __init__(self, token, **config):
         base._Widget.__init__(self, length=0, **config)
         self.add_defaults(self.defaults)
@@ -220,12 +224,14 @@ query($login: String!, $from: DateTime!, $to: DateTime!) {
                     logger.warning(f"Error with {self.theme} theme, "
                                    "switch to default theme")
                     colors = self.THEMES[Ghcw.defaults[6][1]]
+        else:
+            colors = list(map(self.str2cairorgb, self.colors))
 
         if self.revcolors:
             colors = colors[::-1]
 
         if self.empty_cell_color:
-            colors[0] = self.empty_cell_color
+            colors[0] = self.str2cairorgb(self.empty_cell_color)
 
         for col in range(self.nweeks):
             for lig in range(7):
