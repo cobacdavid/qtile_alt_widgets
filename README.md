@@ -255,7 +255,7 @@ An alternative versatile percentage widget.
 
 ### Install
 
-The `Pct` widget is available with  `pct.py` and `flower_pbar.py` files.
+The `Pct` widget is available with  `pct.py` and `flower_pbar.py` files. You also need the `colormaps` libraries : `pip install colormaps`.
 
 Install them using a `git clone` command or just in copying the files in a `~/.config/qtile/widgets/` directory (and create in it a `__init__.py` empty file).
 
@@ -318,6 +318,8 @@ pct.Pct(cmd="amixer get Master "
  - `button[1-7]` (str): optional python callback functions for interactive use. Default is `None`.
  - `center_text` (bool): it displays the progressbar and the text centered. Default is `True`.
  - `cmd` (str): command to execute to get the value to represent. Default is `"awk '/MemTotal/ {t=$2} /MemAvailable/ {a=$2} END {printf \"%.0f\\n\", ((t-a)/t)*100}' /proc/meminfo"`, it returns RAM memory currently used.
+ - `colormap` (str): colormap from `colormaps` lib. Default is `None`.
+ - `colormap_rev` (bool): boolean to reverse colormap. Default is `False`.
  - `colors` (list[str, str]): colors array, first element for positive color, second  d for negative. Default is `["ffffff", "ff0000"]`.
  - `execshell` (str): shell to use to execute `amixer` commands. Default is `"/usr/bin/bash"`.
  - `fpbar_max` (float): max of values. Default is `100`.

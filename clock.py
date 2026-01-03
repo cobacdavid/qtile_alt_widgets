@@ -28,6 +28,7 @@ def str2cairorgb(s):
 class Clock(base._Widget):
     defaults = [
         ("fmts", ["%d/%m", "%H:%M"], "display formats"),
+        ("fontsizes", None, "adjust manually font sizes"),
         ("gapy", 2, "vertical space (in pixels) between displays"),
         ("state", 0, "display state: 0, 1, 2 or 3"),
         ("text_colors", ["000000", "000000"], "")
@@ -42,6 +43,10 @@ class Clock(base._Widget):
 
     def _configure(self, qtile, bar):
         base._Widget._configure(self, qtile, bar)
+        if self.fontsizes is not None:
+            self.fsizes = self.fontsizes
+        else:
+            self.fsizes = [self.fontsize, self.fontsize * .5]
         self._update()
         self.timeout_add(1, self._tick)
 
@@ -76,11 +81,12 @@ class Clock(base._Widget):
         #
         ctx = self.drawer.ctx
         ctx.select_font_face(self.font)
-        ctx.set_font_size(self.fontsize)
+        ctx.set_font_size(self.fsizes[0])
         xb_ht, yb_ht, w_ht, h_ht, xa_ht, ya_ht \
             = ctx.text_extents(self.txt_ht)
+        # yb_ht + h_ht = pixels en bas de la ligne
         if not self.hide_bot:
-            ctx.set_font_size(self.fontsize - 10)
+            ctx.set_font_size(self.fsizes[1])
             xb_bs, yb_bs, w_bs, h_bs, xa_bs, ya_bs \
                 = ctx.text_extents(self.txt_bs)
         else:
@@ -88,16 +94,16 @@ class Clock(base._Widget):
         #
         ctx.set_source_rgb(*str2cairorgb(self.text_colors[0]))
         occup_x = max(w_ht, w_bs) + 2*self.padding
-        occup_y = h_ht + self.gapy + h_bs
+        occup_y = (h_ht + (yb_ht + h_ht)) + self.gapy + (h_bs + (yb_bs + h_bs))
         xd, yd = (occup_x - w_ht) / 2, (self.bar.height - occup_y) / 2 + h_ht
-        xt, yt = (occup_x - w_bs) / 2, yd + self.gapy + h_bs
+        xt, yt = (occup_x - w_bs) / 2, yd + (yb_ht + h_ht) + self.gapy + h_bs
         ctx.move_to(xd, yd)
-        ctx.set_font_size(self.fontsize)
+        ctx.set_font_size(self.fsizes[0])
         ctx.show_text(self.txt_ht)
         ctx.move_to(xt, yt)
         if not self.hide_bot:
             ctx.set_source_rgb(*str2cairorgb(self.text_colors[1]))
-            ctx.set_font_size(self.fontsize - 10)
+            ctx.set_font_size(self.fsizes[1])
             ctx.show_text(self.txt_bs)
         #
         self.length = round(occup_x)
