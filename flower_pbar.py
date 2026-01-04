@@ -96,10 +96,12 @@ class Flower_pbar:
             self.cmp2col()
 
     def cmp2col(self):
-        col = getattr(_cmaps, self.colormap).discrete(self.n_sectors)
+        # ne pas utiliser la 1re couleur qui est utilisé pour le fond
+        # quand on utilise un thème -> 1 couleur de plus
+        col = getattr(_cmaps, self.colormap).discrete(self.n_sectors + 1)
 
         self.colors = [tuple(map(float, col(i)))[:-1]
-                       for i in range(self.n_sectors)]
+                       for i in range(1, self.n_sectors + 1)]
         if self.colormap_rev:
             self.colors.reverse()
 

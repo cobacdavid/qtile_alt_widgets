@@ -7,7 +7,7 @@ Date Created: December 15, 2025
 Date Modified: December 24, 2025
 Version: 1.0
 Python Version: 3.13
-Dependencies: 
+Dependencies:
 License: GNU GPL Version 3
 Repo: https://github.com/cobacdavid/qtile_alt_widgets
 """
@@ -108,7 +108,7 @@ class Pct(base._Widget):
 
     def _tick(self):
         self._update()
-        self.timeout_add(self.update_interval, self._tick)
+        self._timer = self.timeout_add(self.update_interval, self._tick)
 
     def _update(self):
         res = subprocess.run(self.cmd,
@@ -146,3 +146,9 @@ class Pct(base._Widget):
             ctx.show_text(self.text)
         #
         self.draw_at_default_position()
+
+    def finalize(self):
+        if self._timer:
+            self._timer.cancel()
+            self._timer = None
+        base._Widget.finalize(self)

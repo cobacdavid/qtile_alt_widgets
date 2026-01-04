@@ -1,5 +1,50 @@
 # My Qtile Widgets
 
+## License
+
+[GNU/GPLv3](https://www.gnu.org/licenses/gpl-3.0.en.html)
+
+
+## Scripts
+
+- [Layout colored icons](#layout-images)
+
+
+## Layout images
+
+The script `layout_img.py` contains the `path_color_layout`
+function that takes as single argument an hexcolor-like string like
+`"FF0000"` and returns a path that may be used as custom layout
+icon dir. in `CurrentLayout` official widget.
+
+Currently, the script uses `/tmp` to create colored icons.
+
+For example, two icons using `"4989BC"` color:
+
+<img src="https://github.com/cobacdavid/my_qtile_widgets/blob/main/img/layout-matrix.png?raw=true" width=40px /> <img src="https://github.com/cobacdavid/my_qtile_widgets/blob/main/img/layout-monadtall.png?raw=true" width=40px />
+
+
+If an error occured during process, the script returns default directory of qtile
+resources, so the widget remains white colored.
+
+### Usage
+
+In your `config.py` file:
+
+```python
+layout_icons_dir = path_color_layout("FF0000")
+...
+mywidgets = [
+	...
+	widget.CurrentLayout(mode='icon',
+                         scale=.9,
+                         custom_icon_paths=[layout_icons_dir]),
+	...
+	]
+...
+```
+
+
 ## Widgets
 
 - [Github contrib. widget](#github-contribution-widget)
@@ -10,10 +55,6 @@
 - [Pct](#pct)
 
 These widgets access to some default variables set in `widget_defaults` variable, as `font`, `fontsize`, `padding` and `foreground`. Please, pay attention to set these default variables if you wish to use widgets defined in this page.
-
-## License
-
-[GNU/GPLv3](https://www.gnu.org/licenses/gpl-3.0.en.html)
 
 ## Github Contribution Widget
 

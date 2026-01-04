@@ -111,6 +111,8 @@ query($login: String!, $from: DateTime!, $to: DateTime!) {
         self.add_defaults(self.defaults)
         self.token = token
         self.ghcw_themes = list(self.THEMES.keys())
+        if self.theme not in self.ghcw_themes:
+            self.ghcw_themes.append(self.theme)
         self.ghcw_themes_i = 0
         #
         if not self.token:
