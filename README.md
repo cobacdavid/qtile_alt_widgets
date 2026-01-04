@@ -1,5 +1,7 @@
 # My Qtile Widgets
 
+<img src="https://github.com/cobacdavid/my_qtile_widgets/blob/main/img/barre.gif?raw=true" width=100% />
+
 ## License
 
 [GNU/GPLv3](https://www.gnu.org/licenses/gpl-3.0.en.html)
