@@ -64,6 +64,7 @@ class Pct(base._Widget):
             self.send_value()
         if bouton := getattr(self, f"button{n}", None):
             bouton(self)
+            self._update()
 
     def _configure(self, qtile, bar):
         base._Widget._configure(self, qtile, bar)
@@ -101,7 +102,8 @@ class Pct(base._Widget):
         # the larger the better
         self.length = max(self.length, new_length_1, new_length_2)
         #
-        self.timeout_add(self.update_interval, self._tick)
+        if self.update_interval != 0:
+            self.timeout_add(self.update_interval, self._tick)
 
     def send_value(self):
         send_notification("Pct widget", f"{self.text} : {self.niveau}")
