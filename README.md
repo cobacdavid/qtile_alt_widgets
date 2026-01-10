@@ -385,7 +385,7 @@ Left click (`button1`) sends a notification of current value. You can bind optio
 
 ## Xeyes
 
-A [xeyes]()-like widget.
+A [xeyes](https://fr.wikipedia.org/wiki/Xeyes)-like widget.
 
 <img src="https://github.com/cobacdavid/my_qtile_widgets/blob/main/img/xeyes.png?raw=true" width=10% />
 
