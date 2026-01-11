@@ -4,8 +4,8 @@
 Description: A Github contribution widget for Qtile
 Author: David COBAC
 Date Created: December 6, 2025
-Date Modified: December 22, 2025
-Version: 1.3
+Date Modified: January 11, 2026
+Version: 1.5
 Python Version: 3.13
 Dependencies: aiohttp, colormaps
 License: GNU GPL Version 3
@@ -21,6 +21,8 @@ import colormaps as cmaps
 from libqtile.log_utils import logger
 from libqtile.utils import send_notification
 from libqtile.widget import base
+
+from .click_coords import Click_coords_mixin
 
 
 class Contrib_day:
@@ -39,7 +41,7 @@ class Contrib_day:
         ctx.restore()
 
 
-class Ghcw(base._Widget):
+class Ghcw(Click_coords_mixin, base._Widget):
     QUERY = """
 query($login: String!, $from: DateTime!, $to: DateTime!) {
   user(login: $login) {
@@ -107,7 +109,10 @@ query($login: String!, $from: DateTime!, $to: DateTime!) {
         return tuple(int(s[2*i:2*i+2], 16) / 255 for i in range(3))
 
     def __init__(self, token, **config):
-        base._Widget.__init__(self, length=0, **config)
+        super().__init__(length=0, **config)
+        #
+        self.set_click_handler(self.on_click)
+        #
         self.add_defaults(self.defaults)
         self.token = token
         self.ghcw_themes = list(self.THEMES.keys())
@@ -118,14 +123,25 @@ query($login: String!, $from: DateTime!, $to: DateTime!) {
         if not self.token:
             logger.warning("You must provide a valid Github Token.")
             exit
-        self.add_callbacks({"Button1": self.to_user_webpage,
+        self.add_callbacks({"Button2": self.to_user_webpage,
                             "Button3": self.switch_theme})
 
     def _configure(self, qtile, bar):
-        base._Widget._configure(self, qtile, bar)
+        super()._configure(qtile, bar)
         # async task to API
         self._tab_donnees = None
         asyncio.create_task(self.async_init())
+
+    def on_click(self, x, y):
+        col = int((x - self.padding) / (self.gap + self.dim))
+        yoffset = (self.bar.height - (7*self.dim + 8*self.gap)) / 2
+        lig = int((y - yoffset) / (self.gap + self.dim))
+        #
+        dt, ctrb = self._tab_donnees[col * 7 + lig]
+        sctrb = "contribution" if ctrb < 2 else "contributions"
+        s = datetime.fromisoformat(dt).strftime(
+            f"%a %d %b %y : {ctrb} {sctrb}")
+        send_notification("ghcw", s)
 
     def to_user_webpage(self):
         url = f"https://github.com/{self.idgithub}"
@@ -247,4 +263,5 @@ query($login: String!, $from: DateTime!, $to: DateTime!) {
                             self.dim, couleur).draw(ctx)
 
         self.length = lgth + 2*self.padding
+        #
         self.draw_at_default_position()

@@ -10,9 +10,10 @@
 ## Scripts
 
 - [Layout colored icons](#layout-images)
+- [click coords](#click-coords)
 
 
-## Layout images
+### Layout images
 
 The script `layout_img.py` contains the `path_color_layout`
 function that takes as single argument an hexcolor-like string like
@@ -29,7 +30,7 @@ For example, two icons using `"4989BC"` color:
 If an error occured during process, the script returns default directory of qtile
 resources, so the widget remains white colored.
 
-### Usage
+#### Usage
 
 In your `config.py` file:
 
@@ -46,6 +47,33 @@ mywidgets = [
 	...
 	]
 ...
+```
+
+
+### Click Coords
+
+This module contains a class you should use to access `(x,y)` coordinates in your widget.
+
+#### Usage
+
+In your new own widget file:
+
+```python
+from .click_coords import Click_coords_mixin
+
+class My_new_widget(Click_coords_mixin, base._Widget):
+    ...
+    def __init__(self, *args, **config):
+        super().__init__(length=0, **config)
+        # 
+        self.set_click_handler(self.on_click)
+        # now whatever you want in your widget
+        ...
+
+    def on_click(self, x, y):
+        # whatever you want to do using x and y
+        ...
+
 ```
 
 
@@ -74,11 +102,11 @@ Image with 2 years and `ice` colormap  with reversed colors:
 
 ### Install
 
-The `Ghcw` widget is in the `ghcw.py` standalone file.
+The `Ghcw` widget needs `click_coords.py` file and the `ghcw.py` file.
 
-Install it using a `git clone` command or just in copying the file in a `~/.config/qtile/widgets/` directory (and create in it a `__init__.py` empty file).
+Install them using a `git clone` command or just in copying the file in a `~/.config/qtile/widgets/` directory (and create in it a `__init__.py` empty file).
 
-You will need the  `aiohttp` and `colormaps` libraries : `pip install aiohttp colormaps`.
+You will also need the  `aiohttp` and `colormaps` libraries : `pip install aiohttp colormaps`.
 
 You have to get a **token** from the official github site. It's an easy task (via *settings* and *developer settings* menus), I recommand to create a new token for just that widget purpose. You'll need a classic token and the `read:user` permission.
 
@@ -115,7 +143,8 @@ If you use a predefined theme, `colors` option will be ignored but `empty_cell_c
 
 ### Interaction
 
- - Left click on the widget opens the username github page.
+ - Left click sends a notification on the day you click on for example: `Sun 11 Jan 26: 2 contributions`.
+ - Middle click on the widget opens the username github page.
  - Right click switch current theme with embeded themes: `ghcw_lgt`, `ghcw_drk`, `ghcw_gho`, `ghcw_ghd`, `ghcw_bdx`, `ghcw_red` and `ghcw_blu`.
 
 ## Matrix
